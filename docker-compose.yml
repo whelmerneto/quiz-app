@@ -1,0 +1,59 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/app/Dockerfile
+      args:
+        UID: "${UID:-1000}"
+        GID: "${GID:-1000}"
+    container_name: quiz-app
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PHP_IDE_CONFIG: "serverName=quiz"
+    networks:
+      - quiz
+
+  web:
+    image: nginx:1.27-alpine
+    container_name: quiz-web
+    ports:
+      - "8089:80"
+    volumes:
+      - ./:/var/www:ro
+      - ./docker/web/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks:
+      - quiz
+
+  db:
+    image: postgres:17-alpine
+    container_name: quiz-db
+    environment:
+      POSTGRES_DB: quiz_app
+      POSTGRES_USER: quiz
+      POSTGRES_PASSWORD: quiz
+    ports:
+      - "5434:5432"
+    volumes:
+      - quiz-db-data:/var/lib/postgresql/data
+      - ./docker/db:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quiz -d quiz_app"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - quiz
+
+networks:
+  quiz:
+    driver: bridge
+
+volumes:
+  quiz-db-data:
