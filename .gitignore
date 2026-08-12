@@ -29,3 +29,7 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 src/docs/specs/
+
+
+# Alpine Chromium linked into Playwright's registry by tests/Pest.php.
+/storage/framework/playwright

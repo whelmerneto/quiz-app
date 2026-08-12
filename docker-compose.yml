@@ -3,6 +3,11 @@ services:
     build:
       context: .
       dockerfile: docker/app/Dockerfile
+      # `base` by default: 209 MB, no browser. Build the `test` target when the
+      # browser suite has to run — `docker compose build --build-arg` cannot
+      # switch a target, so use `TARGET=test docker compose build app` with the
+      # override below, or `docker build --target test -f docker/app/Dockerfile .`
+      target: ${APP_BUILD_TARGET:-base}
       args:
         UID: "${UID:-1000}"
         GID: "${GID:-1000}"

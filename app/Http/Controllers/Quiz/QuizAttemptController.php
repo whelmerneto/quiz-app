@@ -47,7 +47,6 @@ final class QuizAttemptController extends Controller
             'attempt' => $attempt,
             'questions' => $this->questions($attempt),
             'currentPosition' => $current?->position,
-            'answeredCount' => $answers->whereNotNull('answered_at')->count(),
         ]);
     }
 

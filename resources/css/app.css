@@ -1,9 +1,25 @@
 @import 'tailwindcss';
+@import './glass.css';
 
+/*
+| The compiled-view glob the skeleton ships is deliberately absent. Filament 5
+| ships its own compiled Tailwind build, and storage/framework/views holds the
+| panel's compiled Blade alongside the public views — scanning it would pull the
+| panel's class names into the public stylesheet. Spec section 13 keeps the two
+| stylesheets separate. Everything the public surface uses lives in
+| resources/views, which Tailwind's automatic source detection already reads.
+*/
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
 
+/*
+| --font-sans, --font-display and --font-mono are declared by the Vite fonts
+| plugin, which self-hosts the files and emits the variables at :root. They are
+| restated here so Tailwind generates the matching utilities from them.
+*/
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans:
+        'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+    --font-display: 'Bricolage Grotesque', 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', 'Menlo', monospace;
 }

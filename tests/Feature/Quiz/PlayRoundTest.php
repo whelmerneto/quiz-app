@@ -6,6 +6,7 @@ use App\Enums\ImageLabel;
 use App\Models\QuizAttempt;
 use App\Models\QuizImage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Vite;
 use Illuminate\Support\Str;
 
 uses(RefreshDatabase::class);
@@ -62,7 +63,16 @@ it('renders the same page whichever labels the unanswered images carry', functio
 
     $answeredImageId = $attempt->answers()->where('position', 1)->value('quiz_image_id');
 
-    $before = $this->get(route('quiz.play', ['attempt' => $attempt]))->assertOk()->getContent();
+    // Vite emits each font preload once per process, so the second render would
+    // otherwise drop the <link rel="preload"> block and the diff would be about
+    // asset bookkeeping instead of about labels.
+    $freshRender = function () use ($attempt): string {
+        app(Vite::class)->flush();
+
+        return $this->get(route('quiz.play', ['attempt' => $attempt]))->assertOk()->getContent();
+    };
+
+    $before = $freshRender();
 
     // Flip every image the player has not reached yet, leaving position 1 alone.
     QuizImage::query()
@@ -72,7 +82,7 @@ it('renders the same page whichever labels the unanswered images carry', functio
         ->whereKey($attempt->answers()->where('position', '>', 5)->pluck('quiz_image_id'))
         ->update(['label' => ImageLabel::Real]);
 
-    $after = $this->get(route('quiz.play', ['attempt' => $attempt]))->assertOk()->getContent();
+    $after = $freshRender();
 
     expect($after)->toBe($before);
 });

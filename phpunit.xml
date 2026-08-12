@@ -3,13 +3,27 @@
          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
          bootstrap="vendor/autoload.php"
          colors="true"
+         defaultTestSuite="default"
 >
     <testsuites>
+        <!-- `default` is what a bare run executes: everything but Browser. The
+             named suites below stay available to the testsuite flag. -->
+        <testsuite name="default">
+            <directory>tests/Unit</directory>
+            <directory>tests/Feature</directory>
+        </testsuite>
         <testsuite name="Unit">
             <directory>tests/Unit</directory>
         </testsuite>
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
+        </testsuite>
+        <!-- Pest 4 browser tests. They drive a real Chromium, which only exists
+             in the `test` build stage, so this suite is opt-in: `php artisan
+             test` stays at ~10s and does not require a browser to be installed.
+             Run it with `composer test:browser`. -->
+        <testsuite name="Browser">
+            <directory>tests/Browser</directory>
         </testsuite>
     </testsuites>
     <source>
