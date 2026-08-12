@@ -23,6 +23,9 @@ return [
     'email' => 'O campo :attribute deve ser um e-mail válido.',
     'file' => 'O campo :attribute deve ser um arquivo.',
     'image' => 'O campo :attribute deve ser uma imagem.',
+    // `Rule::enum` emits `enum`, not `in`. The public answer endpoint validates
+    // the label with it, so without this key a player sees an English message.
+    'enum' => 'O valor selecionado para :attribute é inválido.',
     'in' => 'O valor selecionado para :attribute é inválido.',
     'integer' => 'O campo :attribute deve ser um número inteiro.',
     'mimetypes' => 'O campo :attribute deve ser um arquivo do tipo: :values.',

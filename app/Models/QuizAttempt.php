@@ -15,6 +15,13 @@ final class QuizAttempt extends Model
     /** @use HasFactory<QuizAttemptFactory> */
     use HasFactory;
 
+    /**
+     * Session key holding the uuid of the round this visitor may answer. The
+     * answer endpoint compares it against the route; the result page does not,
+     * so a result URL stays shareable.
+     */
+    public const string SESSION_KEY = 'quiz_attempt_uuid';
+
     /** @var list<string> */
     protected $fillable = [
         'uuid',

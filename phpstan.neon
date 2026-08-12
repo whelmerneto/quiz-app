@@ -4,6 +4,13 @@ includes:
 parameters:
     level: 6
 
+    # Larastan reads model attribute types from the migrations and, by default,
+    # only from a `$casts` property. Every model here declares a `casts()`
+    # method instead, so without this flag `QuizImage::$label` analyses as the
+    # migration's string rather than as the ImageLabel it is at runtime, and a
+    # comparison against the enum is reported as always false.
+    parseModelCastsMethod: true
+
     paths:
         - app
         - config
