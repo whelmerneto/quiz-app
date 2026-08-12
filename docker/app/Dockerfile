@@ -11,6 +11,7 @@ RUN apk add --no-cache \
     libpng-dev \
     libjpeg-turbo-dev \
     freetype-dev \
+    libzip-dev \
     linux-headers \
     bash \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
@@ -21,7 +22,8 @@ RUN apk add --no-cache \
         bcmath \
         intl \
         opcache \
-        gd
+        gd \
+        zip
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 

@@ -35,6 +35,10 @@
         <env name="DB_PASSWORD" value="quiz"/>
         <env name="DB_URL" value=""/>
         <env name="MAIL_MAILER" value="array"/>
+        <!-- Pinned so upload tests fake a known disk regardless of the local
+             .env. Storage::fake() replaces it, so nothing reaches real storage. -->
+        <env name="FILESYSTEM_DISK" value="public"/>
+        <env name="QUIZ_DISK" value="public"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>
