@@ -85,6 +85,15 @@ DB_USERNAME=<neon user>
 DB_PASSWORD=<neon password>
 DB_SSLMODE=require
 
+# Required on the pooled endpoint. Neon's `-pooler` host runs transaction-mode
+# pooling, which hands each transaction whichever backend is free, so a
+# server-side prepared statement created on one is missing on the next. PHP 8.4
+# with libpq 17+ negotiates around it; older runtimes do not, and the failure is
+# intermittent because it needs concurrent workers to appear at all. It surfaces
+# as `SQLSTATE[25P02] current transaction is aborted` on the statement AFTER the
+# one that actually failed, which is why the message never names the cause.
+DB_DISABLE_PREPARES=true
+
 # Neither belongs on the database here. Both default to `database`, which puts a
 # query on every request including visitors who never start a round — on a plan
 # measured in compute-hours that spends the budget keeping an idle database

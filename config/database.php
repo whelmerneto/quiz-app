@@ -99,6 +99,30 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+
+            /*
+             * Server-side prepared statements are bound to one Postgres backend
+             * process. A transaction-mode pooler — Neon's `-pooler` endpoint,
+             * PgBouncer, Supavisor in transaction mode — hands each transaction
+             * whichever backend is free, so a statement prepared on one is
+             * missing on the next. The failure is intermittent by nature: it
+             * needs concurrent workers to show up at all, and it surfaces as
+             * SQLSTATE 25P02 "current transaction is aborted" on the statement
+             * AFTER the real one, which hides the cause.
+             *
+             * PHP 8.4 with libpq 17+ negotiates this correctly on its own, so a
+             * container built on a recent Alpine never reproduces it while a
+             * host on an older libpq fails constantly. Do not rely on the
+             * runtime being new enough: set DB_DISABLE_PREPARES=true wherever
+             * the connection goes through a pooler.
+             *
+             * PGSQL_ATTR_DISABLE_PREPARES, not ATTR_EMULATE_PREPARES. The
+             * latter also works but makes PDO bind booleans as 1/0, which
+             * Postgres rejects.
+             */
+            'options' => array_filter([
+                PDO::PGSQL_ATTR_DISABLE_PREPARES => env('DB_DISABLE_PREPARES', false),
+            ]),
         ],
 
         'sqlsrv' => [
