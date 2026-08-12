@@ -93,9 +93,15 @@ it('moves the current position as the round is played', function (): void {
     answerPosition($attempt, 1)->assertOk();
     answerPosition($attempt, 2)->assertOk();
 
-    $this->get(route('quiz.play', ['attempt' => $attempt]))
-        ->assertViewHas('currentPosition', 3)
-        ->assertViewHas('answeredCount', 2);
+    // currentPosition alone: it is the only counter the view reads, and it
+    // already says how many are spent. The questions payload carries the same
+    // fact per position, asserted by the test above.
+    $response = $this->get(route('quiz.play', ['attempt' => $attempt]))
+        ->assertViewHas('currentPosition', 3);
+
+    $spent = collect($response->viewData('questions'))->where('answered', true);
+
+    expect($spent)->toHaveCount(2);
 });
 
 it('offers the result once every position is answered', function (): void {

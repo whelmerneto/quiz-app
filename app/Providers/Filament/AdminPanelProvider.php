@@ -30,6 +30,11 @@ final class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->brandName('Real ou 3D')
             ->login()
+            // The bootstrap password is set once, from a terminal, by whoever
+            // deploys. This gives the operator somewhere to change it without a
+            // second console run, which matters because Laravel Cloud's command
+            // runner has no TTY and cannot answer a prompt.
+            ->profile(isSimple: false)
             ->colors([
                 'primary' => Color::Amber,
             ])
