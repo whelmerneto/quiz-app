@@ -25,17 +25,17 @@ final class QuizImageForm
                     ->visibility('public')
                     // Neither call is only a browser hint. `acceptedFileTypes()`
                     // registers a `mimetypes:image/png` validation rule and
-                    // `maxSize()` registers `max:8192`, both evaluated on the
+                    // `maxSize()` registers `max:10240`, both evaluated on the
                     // server against the uploaded file. A request that skips the
                     // form UI therefore still fails before anything is stored.
                     ->acceptedFileTypes(['image/png'])
-                    ->maxSize(8192)
+                    ->maxSize(10240)
                     // Without this, a plain string submitted as form state is
                     // persisted into `path` verbatim: the mimetypes and max rules
                     // only apply to entries that are actually uploaded files.
                     ->preventFilePathTampering()
                     ->imagePreviewHeight('180')
-                    ->helperText('PNG apenas, no máximo 8 MB.'),
+                    ->helperText('PNG apenas, no máximo 10 MB.'),
                 Radio::make('label')
                     ->label('Classificação')
                     ->required()

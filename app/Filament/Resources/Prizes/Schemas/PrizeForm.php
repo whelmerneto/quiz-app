@@ -40,16 +40,16 @@ final class PrizeForm
                     ->directory('prize-images')
                     ->visibility('public')
                     // Same server-side rules as the quiz image upload:
-                    // `mimetypes:image/png` and `max:8192` are registered by
+                    // `mimetypes:image/png` and `max:10240` are registered by
                     // these two calls, not just applied in the browser.
                     ->acceptedFileTypes(['image/png'])
-                    ->maxSize(8192)
+                    ->maxSize(10240)
                     // See QuizImageForm: the upload rules only reach entries that
                     // are real uploads, so a hand-crafted string would otherwise
                     // land in `image_path` untouched.
                     ->preventFilePathTampering()
                     ->imagePreviewHeight('180')
-                    ->helperText('Opcional. PNG apenas, no máximo 8 MB.'),
+                    ->helperText('Opcional. PNG apenas, no máximo 10 MB.'),
                 Toggle::make('is_active')
                     ->label('Ativo')
                     ->helperText('Somente prêmios ativos são considerados no resultado de uma rodada.')

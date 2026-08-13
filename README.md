@@ -59,8 +59,13 @@ npm run dev                               # Vite, on the host
 real Chromium, which only exists in the `test` build stage:
 
 ```bash
-docker build --target test -t quiz-app-app -f docker/app/Dockerfile .
+APP_BUILD_TARGET=test docker compose build app
+APP_BUILD_TARGET=test docker compose up -d app
+docker compose exec app composer test:browser
 ```
+
+Going back is the same commands without the variable. A bare `docker compose
+build` always produces `base`.
 
 Folding the browser into the default image took it from 209 MB to 1.4 GB, paid
 by everyone to support one thirty-second test, so it is opt-in.

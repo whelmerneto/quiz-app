@@ -189,10 +189,10 @@ it('rejects a webp upload', function (): void {
     expect(QuizImage::query()->count())->toBe(0);
 });
 
-it('rejects a png larger than 8 mb', function (): void {
+it('rejects a png larger than 10 mb', function (): void {
     Livewire::test(CreateQuizImage::class)
         ->fillForm([
-            'path' => UploadedFile::fake()->createWithContent('grande.png', pngBytes(9 * 1024 * 1024)),
+            'path' => UploadedFile::fake()->createWithContent('grande.png', pngBytes(11 * 1024 * 1024)),
             'label' => ImageLabel::Real->value,
         ])
         ->call('create')
@@ -204,10 +204,11 @@ it('rejects a png larger than 8 mb', function (): void {
 it('accepts a png just under the limit', function (): void {
     // The counterpart to the oversized case: same construction, same MIME type,
     // only the size differs. Without it the rejection above could be passing on
-    // a MIME failure instead of the size rule.
+    // a MIME failure instead of the size rule. 9 MB also pins the boundary that
+    // moved: it was rejected under the old 8 MB cap and must pass under 10.
     Livewire::test(CreateQuizImage::class)
         ->fillForm([
-            'path' => UploadedFile::fake()->createWithContent('quase.png', pngBytes(7 * 1024 * 1024)),
+            'path' => UploadedFile::fake()->createWithContent('quase.png', pngBytes(9 * 1024 * 1024)),
             'label' => ImageLabel::Real->value,
         ])
         ->call('create')

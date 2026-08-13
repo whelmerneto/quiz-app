@@ -23,12 +23,15 @@ return [
     |--------------------------------------------------------------------------
     |
     | The filesystem disk backing quiz image and prize photo uploads. Locally
-    | this is the "public" disk behind `php artisan storage:link`. On Laravel
-    | Cloud an attached bucket sets FILESYSTEM_DISK=s3 and the same code
-    | writes to object storage.
+    | this is "public", behind `php artisan storage:link`. In production it is
+    | "quiz_storage", the bucket defined in config/filesystems.php.
+    |
+    | Anywhere the application container's filesystem is ephemeral — Laravel
+    | Cloud included — "public" silently loses every upload on the next deploy.
+    | `php artisan quiz:check-storage` is the guard against shipping that way.
     |
     */
 
-    'disk' => env('QUIZ_DISK', env('FILESYSTEM_DISK', 'public')),
+    'disk' => env('QUIZ_DISK', 'public'),
 
 ];

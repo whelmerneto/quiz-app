@@ -43,12 +43,12 @@ RUN apk add --no-cache \
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # The base image ships no php.ini, so PHP falls back to compiled-in defaults
-# (upload_max_filesize=2M, post_max_size=8M). The spec allows 8 MB PNG uploads,
+# (upload_max_filesize=2M, post_max_size=8M). The spec allows 10 MB PNG uploads,
 # and post_max_size must clear the whole multipart envelope, not just the file.
 # The three limits stack so every oversized request stays handleable in PHP:
-#   8M  < size <= 12M  PHP accepts the body, sets UPLOAD_ERR_INI_SIZE, and
+#  10M  < size <= 14M  PHP accepts the body, sets UPLOAD_ERR_INI_SIZE, and
 #                      Laravel validation returns a readable 422
-#  12M  < size <= 25M  Laravel's ValidatePostSize middleware throws
+#  14M  < size <= 25M  Laravel's ValidatePostSize middleware throws
 #                      PostTooLargeException as a 413, before routing and
 #                      before CSRF verification
 #        size >  25M   nginx rejects it with a bare 413

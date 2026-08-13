@@ -51,7 +51,7 @@ Nothing else on Neon needs configuring. The schema arrives with `migrate`.
 2. **Settings → Public access.** Enable it, either through the `r2.dev`
    development subdomain or a custom domain. The quiz images are public content
    and signed URLs would defeat CDN caching. Copy the resulting public hostname:
-   this becomes `AWS_URL`.
+   this becomes `QUIZ_STORAGE_URL`.
 3. **R2 → API → Manage API tokens → Create token**, scoped to *Object Read &
    Write* on this bucket only. Copy the Access Key ID, the Secret Access Key and
    the S3 API endpoint.
@@ -103,22 +103,27 @@ SESSION_DRIVER=cookie
 CACHE_STORE=file
 QUEUE_CONNECTION=sync
 
-FILESYSTEM_DISK=s3
-QUIZ_DISK=s3
+QUIZ_DISK=quiz_storage
 QUIZ_QUESTIONS_PER_ROUND=10
 
-AWS_ACCESS_KEY_ID=<r2 access key id>
-AWS_SECRET_ACCESS_KEY=<r2 secret access key>
-AWS_DEFAULT_REGION=auto
-AWS_BUCKET=quiz-app
-AWS_ENDPOINT=<r2 s3 api endpoint>
-AWS_URL=<r2 public hostname>
-AWS_USE_PATH_STYLE_ENDPOINT=false
+QUIZ_STORAGE_KEY=<r2 access key id>
+QUIZ_STORAGE_SECRET=<r2 secret access key>
+QUIZ_STORAGE_REGION=auto
+QUIZ_STORAGE_BUCKET=quiz-app
+QUIZ_STORAGE_ENDPOINT=<r2 s3 api endpoint>
+QUIZ_STORAGE_URL=<r2 public hostname>
+QUIZ_STORAGE_PATH_STYLE=false
 ```
 
-`AWS_DEFAULT_REGION` is `auto` on R2, not a region name. `AWS_URL` is not
-optional: without it `Storage::url()` returns a path the browser cannot resolve
-and every image in the quiz renders broken.
+These are deliberately not called `AWS_*`. Laravel's stock bucket names its
+variables after the SDK, which reads as "you need an AWS account" when none is
+involved: `driver => 's3'` names a **protocol**, not Amazon. R2, MinIO,
+Backblaze B2 and Spaces all speak it, and `QUIZ_STORAGE_ENDPOINT` is what points
+the client at Cloudflare rather than at Amazon.
+
+`QUIZ_STORAGE_REGION` is `auto` on R2, not a region name. `QUIZ_STORAGE_URL` is
+not optional: without it `Storage::url()` returns a path the browser cannot
+resolve and every image in the quiz renders broken.
 
 ### PHP version
 
@@ -179,9 +184,37 @@ curl -s -o /dev/null -w '%{http_code}\n' https://<host>/up
 curl -s -o /dev/null -w '%{http_code}\n' https://<host>/admin/login
 ```
 
+### Check storage before uploading anything
+
+```bash
+php artisan quiz:check-storage
+```
+
+Run this **before** an operator registers a single image. It prints the disk in
+use and the R2 settings, then writes a probe object, fetches it back over the
+public URL exactly as a browser would, and deletes it. Exit code 0 means an
+upload will survive a deploy and be readable.
+
+This check exists because the failure it catches is silent. Writing to the
+`public` disk on an ephemeral container **succeeds** — the file lands, the row is
+created, the panel reports success — and the image only disappears on the next
+deploy. The symptom is a 404 in a visitor's browser, hours later and far from
+the action that caused it. Configuration alone would not catch it either: a
+bucket can be named correctly and still be private or unreachable.
+
+If it reports `Disk in use: public`, the storage variables did not reach the
+running application. Confirm what it actually sees:
+
+```bash
+php artisan tinker --execute="echo json_encode(['disk'=>config('quiz.disk'),'bucket'=>config('filesystems.disks.quiz_storage.bucket'),'endpoint'=>config('filesystems.disks.quiz_storage.endpoint'),'url'=>config('filesystems.disks.quiz_storage.url')]);"
+```
+
+`null` values mean the variable is absent rather than wrong. **Adding a variable
+is not enough on its own** — `config:cache` freezes every value at build time,
+so anything added after the last deploy is invisible until the next one.
+
 Then, in a browser: sign in at `/admin`, upload one PNG, and open the image's
-URL directly. It must serve from the R2 public hostname. If it 404s, public
-access on the bucket is off or `AWS_URL` is wrong.
+URL directly. It must serve from the R2 public hostname.
 
 ---
 

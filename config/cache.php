@@ -86,14 +86,13 @@ return [
             'lock_connection' => env('REDIS_CACHE_LOCK_CONNECTION', 'default'),
         ],
 
-        'dynamodb' => [
-            'driver' => 'dynamodb',
-            'key' => env('AWS_ACCESS_KEY_ID'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
-            'table' => env('DYNAMODB_CACHE_TABLE', 'cache'),
-            'endpoint' => env('DYNAMODB_ENDPOINT'),
-        ],
+        /*
+         * The stock `dynamodb` store is removed for the same reason as the
+         * `ses` block in config/services.php: it is unused, and its AWS_*
+         * variables were part of what made the storage configuration read as
+         * though an AWS account were required. The bucket is Cloudflare R2,
+         * reached over the S3 protocol. Restore from the skeleton if needed.
+         */
 
         'octane' => [
             'driver' => 'octane',

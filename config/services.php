@@ -24,11 +24,13 @@ return [
         'key' => env('RESEND_API_KEY'),
     ],
 
-    'ses' => [
-        'key' => env('AWS_ACCESS_KEY_ID'),
-        'secret' => env('AWS_SECRET_ACCESS_KEY'),
-        'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
-    ],
+    /*
+     * The stock `ses` block is removed. The application does not send mail
+     * through SES, and the three AWS_* variables it declared were the only
+     * thing in the codebase suggesting an AWS account was needed — which cost
+     * real confusion once, since the image bucket is Cloudflare R2 reached over
+     * the S3 protocol. Restore it from the Laravel skeleton if SES is ever used.
+     */
 
     'slack' => [
         'notifications' => [
