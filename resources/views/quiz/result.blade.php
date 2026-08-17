@@ -92,8 +92,11 @@
                     @foreach ($answers as $answer)
                         <li>
                             <x-glass.card class="overflow-hidden p-2">
+                                {{-- Same rule as the round: contained, so the
+                                     review shows the image the player judged,
+                                     whole, not a crop of it. --}}
                                 <img
-                                    class="aspect-[4/3] w-full rounded-xl object-cover"
+                                    class="aspect-[4/3] w-full rounded-xl bg-white/4 object-contain"
                                     src="{{ $answer->image->url() }}"
                                     alt="Imagem {{ $answer->position }} da rodada"
                                     loading="lazy"
