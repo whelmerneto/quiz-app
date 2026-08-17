@@ -56,14 +56,25 @@
         <x-glass.card hero class="p-3 sm:p-4" ::class="{ 'is-flexing': flexing }">
             <figure class="frame">
                 @foreach ($questions as $question)
-                    <img
-                        @class(['frame__img', 'is-current' => $question['position'] === $currentPosition])
-                        :class="{ 'is-current': current === {{ $question['position'] }} }"
-                        src="{{ $question['url'] }}"
-                        alt="Imagem {{ $question['position'] }} da rodada"
-                        decoding="async"
-                        @if ($question['position'] === 1) fetchpriority="high" @endif
-                    >
+                    @if ($question['url'] === null)
+                        {{-- The image was deleted while this round was open. The
+                             position still answers — it is scored from the label
+                             frozen onto the row — so it renders as a placeholder
+                             instead of taking the page down. --}}
+                        <p
+                            @class(['frame__img', 'frame__img--gone', 'is-current' => $question['position'] === $currentPosition])
+                            :class="{ 'is-current': current === {{ $question['position'] }} }"
+                        >Imagem removida</p>
+                    @else
+                        <img
+                            @class(['frame__img', 'is-current' => $question['position'] === $currentPosition])
+                            :class="{ 'is-current': current === {{ $question['position'] }} }"
+                            src="{{ $question['url'] }}"
+                            alt="Imagem {{ $question['position'] }} da rodada"
+                            decoding="async"
+                            @if ($question['position'] === 1) fetchpriority="high" @endif
+                        >
+                    @endif
                 @endforeach
 
                 {{-- The verdict. Colour is never the only signal: the word and

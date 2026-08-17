@@ -27,14 +27,15 @@ final class QuizImageResource extends Resource
     use ResolvesNumericRecordKey;
 
     /**
-     * The Postgres SQLSTATEs that mean "this image is still referenced".
-     * `quiz_attempt_answers` references `quiz_images` with ON DELETE RESTRICT,
-     * and which of the two codes comes back depends on the server version:
-     * Postgres 17 answers the blocked delete with 23503 foreign_key_violation,
-     * Postgres 18 with 23001 restrict_violation. Matching only one of them
-     * turns a blocked delete into an unhandled 500 on whichever server
-     * disagrees, which is exactly what production (Neon, Postgres 18) did while
-     * the container (Postgres 17) stayed green.
+     * The Postgres SQLSTATEs that mean "this image is still referenced": 23503
+     * foreign_key_violation and 23001 restrict_violation, which server versions
+     * disagree about — Postgres 17 raises the first, 18 the second.
+     *
+     * Since the reference became ON DELETE SET NULL neither should reach an
+     * operator, and the pair is kept only for the window where the code is
+     * deployed ahead of its migration. That state already produced one
+     * unhandled 500 in production, and the alternative to these two lines is
+     * the same 500 again.
      *
      * @var list<string>
      */
@@ -73,16 +74,20 @@ final class QuizImageResource extends Resource
     }
 
     /**
-     * Deleting an image that appears in a past attempt is blocked by the
-     * foreign key, which surfaces as a QueryException in the middle of the
-     * action. Swallowing only that one SQLSTATE turns it into the notification
-     * the operator can act on; anything else still bubbles up as a real error.
+     * An image can be deleted whether or not it has been played. The answer
+     * rows that drew it keep their position, verdict and frozen label and lose
+     * only the reference, so the round still reads — the review prints
+     * "Imagem removida" where the photograph used to be.
+     *
+     * The failure notification is what an operator sees if the code is running
+     * ahead of its migration, when the reference is still ON DELETE RESTRICT.
      */
     public static function deleteAction(): DeleteAction
     {
         return DeleteAction::make()
+            ->modalDescription('As rodadas que usaram esta imagem continuam com placar e gabarito. Só a foto deixa de aparecer.')
             ->failureNotificationTitle('Não foi possível excluir esta imagem')
-            ->failureNotificationBody('Ela já foi usada em pelo menos uma partida. Desative a imagem para tirá-la dos próximos sorteios sem apagar o histórico.')
+            ->failureNotificationBody('O banco ainda a trata como obrigatória em partidas antigas. Rode as migrations pendentes e tente de novo.')
             ->using(static function (QuizImage $record): bool {
                 $path = $record->path;
 

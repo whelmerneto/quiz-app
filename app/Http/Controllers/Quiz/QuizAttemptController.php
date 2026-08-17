@@ -55,7 +55,12 @@ final class QuizAttemptController extends Controller
      * and whether it is already spent. The label of an unanswered image is not
      * in this array, so it cannot reach the HTML.
      *
-     * @return list<array{position: int, url: string, answered: bool}>
+     * `url` is null when an operator deleted the image while this round was
+     * still open. The round stays playable — the answer is scored against the
+     * label frozen onto the row — and the position renders as a placeholder
+     * rather than a broken image.
+     *
+     * @return list<array{position: int, url: ?string, answered: bool}>
      */
     private function questions(QuizAttempt $attempt): array
     {
@@ -64,7 +69,7 @@ final class QuizAttemptController extends Controller
         foreach ($attempt->answers->sortBy('position') as $answer) {
             $questions[] = [
                 'position' => $answer->position,
-                'url' => $answer->image->url(),
+                'url' => $answer->image?->url(),
                 'answered' => $answer->answered_at !== null,
             ];
         }

@@ -14,6 +14,7 @@ final class QuizAttemptAnswer extends Model
     protected $fillable = [
         'quiz_attempt_id',
         'quiz_image_id',
+        'image_label',
         'position',
         'answer',
         'is_correct',
@@ -29,6 +30,10 @@ final class QuizAttemptAnswer extends Model
     }
 
     /**
+     * The image drawn for this position, or null once an operator has deleted
+     * it. `image_label` is the snapshot taken at draw time, so a past round can
+     * still state its right answer without the row on the other side.
+     *
      * @return BelongsTo<QuizImage, $this>
      */
     public function image(): BelongsTo
@@ -44,6 +49,7 @@ final class QuizAttemptAnswer extends Model
     {
         return [
             'position' => 'integer',
+            'image_label' => ImageLabel::class,
             'answer' => ImageLabel::class,
             'is_correct' => 'boolean',
             'answered_at' => 'immutable_datetime',

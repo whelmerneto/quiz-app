@@ -701,6 +701,18 @@
         transform: scale(1);
     }
 
+    /* Stands in for an image an operator deleted while the round was open. It
+       takes the same box as the photograph it replaces. */
+    .frame__img--gone {
+        display: grid;
+        place-items: center;
+        margin: 0;
+        color: var(--ink-faint);
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        letter-spacing: 0.04em;
+    }
+
     /* The verdict band. Colour is never the only signal: the word and the
        revealed truth carry the message on their own. */
     .verdict {

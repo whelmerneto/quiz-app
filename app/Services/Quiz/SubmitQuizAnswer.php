@@ -68,7 +68,11 @@ final readonly class SubmitQuizAnswer
 
             $answer->update([
                 'answer' => $data->answer,
-                'is_correct' => $answer->image->label === $data->answer,
+                // Scored against the snapshot on the row, not against the image
+                // it points at: the label of a drawn image is frozen when the
+                // round starts, so retagging or deleting an image mid-round
+                // cannot change what an answer was worth.
+                'is_correct' => $answer->image_label === $data->answer,
                 'answered_at' => now(),
             ]);
 

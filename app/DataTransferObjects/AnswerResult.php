@@ -27,15 +27,17 @@ final readonly class AnswerResult
     ) {}
 
     /**
-     * `$answer` must carry its recorded verdict and a loaded `image` relation,
-     * and `$attempt->correct_count` must already include this answer.
+     * `$answer` must carry its recorded verdict, and `$attempt->correct_count`
+     * must already include this answer. The right answer comes from the label
+     * frozen onto the row at draw time, so it holds even for an image that has
+     * since been deleted.
      */
     public static function fromAnswer(QuizAttempt $attempt, QuizAttemptAnswer $answer, int $answeredCount): self
     {
         return new self(
             position: $answer->position,
             correct: (bool) $answer->is_correct,
-            correctLabel: $answer->image->label,
+            correctLabel: $answer->image_label,
             correctCount: $attempt->correct_count,
             answeredCount: $answeredCount,
             questionCount: $attempt->question_count,

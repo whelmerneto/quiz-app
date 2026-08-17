@@ -125,40 +125,44 @@ it('removes the stored file when an image is deleted', function (): void {
         ->and($disk->exists('quiz-images/orphan-check.png'))->toBeFalse();
 });
 
-it('keeps the stored file when the delete is refused', function (): void {
+it('deletes an image that a past round used and keeps that round', function (): void {
+    // The point of the whole arrangement: the operator gets the image out of the
+    // library and the played round survives it. What the round keeps is its
+    // position, its verdict and the label frozen at draw time; what it loses is
+    // the reference and the photograph.
     $disk = Storage::disk(Config::string('quiz.disk'));
-    $disk->put('quiz-images/kept.png', 'png-bytes');
+    $disk->put('quiz-images/played.png', 'png-bytes');
 
-    $image = QuizImage::factory()->create(['path' => 'quiz-images/kept.png']);
-    $attempt = QuizAttempt::factory()->create();
+    $image = QuizImage::factory()->create([
+        'path' => 'quiz-images/played.png',
+        'label' => ImageLabel::ThreeD,
+    ]);
+    $attempt = QuizAttempt::factory()->create(['correct_count' => 1]);
 
-    QuizAttemptAnswer::query()->create([
+    $answer = QuizAttemptAnswer::query()->create([
         'quiz_attempt_id' => $attempt->id,
         'quiz_image_id' => $image->id,
+        'image_label' => ImageLabel::ThreeD,
         'position' => 1,
+        'answer' => ImageLabel::ThreeD,
+        'is_correct' => true,
+        'answered_at' => now(),
     ]);
 
     Livewire::test(ListQuizImages::class)
         ->callAction(TestAction::make('delete')->table($image));
 
-    expect($disk->exists('quiz-images/kept.png'))->toBeTrue();
-});
+    $answer->refresh();
+    $attempt->refresh();
 
-it('refuses to delete an image that appears in a past attempt', function (): void {
-    $image = QuizImage::factory()->create();
-    $attempt = QuizAttempt::factory()->create();
-
-    QuizAttemptAnswer::query()->create([
-        'quiz_attempt_id' => $attempt->id,
-        'quiz_image_id' => $image->id,
-        'position' => 1,
-    ]);
-
-    Livewire::test(ListQuizImages::class)
-        ->callAction(TestAction::make('delete')->table($image))
-        ->assertNotified('Não foi possível excluir esta imagem');
-
-    expect(QuizImage::query()->whereKey($image->id)->exists())->toBeTrue();
+    expect(QuizImage::query()->whereKey($image->id)->exists())->toBeFalse()
+        ->and($disk->exists('quiz-images/played.png'))->toBeFalse()
+        ->and($answer->quiz_image_id)->toBeNull()
+        ->and($answer->image_label)->toBe(ImageLabel::ThreeD)
+        ->and($answer->answer)->toBe(ImageLabel::ThreeD)
+        ->and($answer->is_correct)->toBeTrue()
+        ->and($answer->position)->toBe(1)
+        ->and($attempt->correct_count)->toBe(1);
 });
 
 it('accepts a jpeg upload', function (): void {

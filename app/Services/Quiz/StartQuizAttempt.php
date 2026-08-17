@@ -52,6 +52,10 @@ final readonly class StartQuizAttempt
             foreach ($images as $image) {
                 $rows[] = [
                     'quiz_image_id' => $image->id,
+                    // Snapshot, not a convenience copy: it is what scores the
+                    // answer and what the review prints as the right answer, so
+                    // the round stays readable after the image is deleted.
+                    'image_label' => $image->label,
                     'position' => ++$position,
                 ];
             }

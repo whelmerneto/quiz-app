@@ -180,6 +180,28 @@ it('refuses to complete a round that still has unanswered positions', function (
         ->and($attempt->fresh()?->completed_at)->toBeNull();
 });
 
+it('reviews a round whose image was deleted afterwards', function (): void {
+    $attempt = startRound();
+    playRound($attempt, 5);
+
+    $answer = $attempt->answers()->with('image')->orderBy('position')->firstOrFail();
+    $frozen = $answer->image_label;
+    $url = $answer->image->url();
+
+    $answer->image->delete();
+
+    $this->get(route('quiz.result', ['attempt' => $attempt]))
+        ->assertOk()
+        ->assertSee('Imagem removida')
+        ->assertDontSee($url)
+        // The right answer survives the image, because it never came from it.
+        ->assertSee('Resposta certa: '.$frozen->label());
+
+    expect($answer->refresh()->quiz_image_id)->toBeNull()
+        ->and($answer->image_label)->toBe($frozen)
+        ->and($attempt->refresh()->correct_count)->toBe(5);
+});
+
 it('renders every answer without a lazy load', function (): void {
     // preventLazyLoading() is on outside production, so the page throwing here
     // is the failure the eager loads in ResultController exist to stop.

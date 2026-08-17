@@ -19,10 +19,11 @@ final class QuizImagesTable
 {
     public static function configure(Table $table): Table
     {
-        // There is no bulk delete on purpose. `quiz_attempt_answers` references
-        // this table with ON DELETE RESTRICT, so a selection mixing used and
-        // unused images fails halfway with nothing useful to report. Images are
-        // removed one at a time, where a failure maps to a single record.
+        // There is no bulk delete on purpose. Deleting an image now succeeds
+        // whether or not a round used it, so nothing stops one being added —
+        // but a selection is also the easy way to empty the pool by accident,
+        // and no operator has asked for it. One image at a time, each behind
+        // its own confirmation.
         return $table
             ->columns([
                 Stack::make([

@@ -91,16 +91,28 @@
                     @foreach ($answers as $answer)
                         <li>
                             <x-glass.card class="overflow-hidden p-2">
-                                {{-- Same rule as the round: contained, so the
-                                     review shows the image the player judged,
-                                     whole, not a crop of it. --}}
-                                <img
-                                    class="aspect-[4/3] w-full rounded-xl bg-black/5 object-contain"
-                                    src="{{ $answer->image->url() }}"
-                                    alt="Imagem {{ $answer->position }} da rodada"
-                                    loading="lazy"
-                                    decoding="async"
-                                >
+                                @if ($answer->image === null)
+                                    {{-- The operator deleted the image after the
+                                         round was played. The verdict below is
+                                         unaffected: it was scored, and is
+                                         printed, from the label frozen onto this
+                                         answer when the round started. --}}
+                                    <p
+                                        class="t-note flex aspect-[4/3] w-full items-center justify-center rounded-xl bg-black/5 text-center"
+                                        data-testid="review-image-removed"
+                                    >Imagem removida</p>
+                                @else
+                                    {{-- Same rule as the round: contained, so the
+                                         review shows the image the player judged,
+                                         whole, not a crop of it. --}}
+                                    <img
+                                        class="aspect-[4/3] w-full rounded-xl bg-black/5 object-contain"
+                                        src="{{ $answer->image->url() }}"
+                                        alt="Imagem {{ $answer->position }} da rodada"
+                                        loading="lazy"
+                                        decoding="async"
+                                    >
+                                @endif
 
                                 <div class="mt-2 flex flex-col items-start gap-2 px-1 pb-1">
                                     <x-glass.badge :tone="$answer->is_correct ? 'hit' : 'miss'">
@@ -109,7 +121,7 @@
 
                                     <p class="t-note">
                                         Você respondeu: {{ $answer->answer?->label() }}<br>
-                                        Resposta certa: {{ $answer->image->label->label() }}
+                                        Resposta certa: {{ $answer->image_label->label() }}
                                     </p>
                                 </div>
                             </x-glass.card>
