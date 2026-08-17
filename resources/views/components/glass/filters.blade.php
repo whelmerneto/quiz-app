@@ -54,26 +54,5 @@
                 yChannelSelector="G"
             />
         </filter>
-
-        {{-- Text needs a far gentler push: enough to bend the word, not enough
-             to cost legibility. Used on one word of the landing title. --}}
-        <filter
-            id="glass-refraction-text"
-            x="-12%"
-            y="-12%"
-            width="124%"
-            height="124%"
-            color-interpolation-filters="sRGB"
-        >
-            <feTurbulence type="fractalNoise" baseFrequency="0.011 0.019" numOctaves="1" seed="4" result="field" />
-            <feGaussianBlur in="field" stdDeviation="1.4" result="soft" />
-            <feDisplacementMap
-                in="SourceGraphic"
-                in2="soft"
-                scale="13"
-                xChannelSelector="R"
-                yChannelSelector="G"
-            />
-        </filter>
     </defs>
 </svg>

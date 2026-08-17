@@ -16,7 +16,7 @@
 --}}
 @extends('layouts.app')
 
-@section('title', 'Rodada — Real ou 3D?')
+@section('title', 'Rodada — Real ou Digital?')
 
 @section('content')
     <div
@@ -30,7 +30,7 @@
     >
         <div class="flex flex-col gap-3">
             <div class="flex items-baseline justify-between gap-4">
-                <p class="t-eyebrow">Real ou 3D?</p>
+                <p class="t-eyebrow">Real ou Digital?</p>
 
                 <p class="t-note" data-testid="progress">
                     <span data-testid="position" x-text="counter">{{ str_pad((string) ($currentPosition ?? $attempt->question_count), 2, '0', STR_PAD_LEFT) }}</span>

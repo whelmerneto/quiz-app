@@ -9,7 +9,7 @@
 --}}
 @extends('layouts.app')
 
-@section('title', 'Resultado — Real ou 3D?')
+@section('title', 'Resultado — Real ou Digital?')
 
 @section('content')
     <div class="mx-auto flex min-h-dvh w-full max-w-3xl flex-col justify-center gap-6 px-4 py-10 sm:px-6 sm:gap-8">

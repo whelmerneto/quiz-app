@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#ffffff">
-    <meta name="description" content="Um jogo de percepção: cada imagem foi capturada por uma câmera ou construída em 3D?">
-    <title>@yield('title', 'Real ou 3D?')</title>
+    <meta name="description" content="Um jogo de percepção: cada imagem foi capturada por uma câmera ou construída digitalmente?">
+    <title>@yield('title', 'Real ou Digital?')</title>
     {{-- @fonts is a separate directive; @vite does not emit it. Without it the
          three self-hosted families build but never load and every family falls
          back to the system stack. --}}

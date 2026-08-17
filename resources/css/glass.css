@@ -605,15 +605,6 @@
         letter-spacing: 0.02em;
     }
 
-    /* The landing thesis: one word is captured, the other is computed. "3D"
-       runs through the same displacement map as the hero cards, so the title
-       states the question in the material itself. Dropped whenever the
-       refraction is dropped. */
-    .t-bent {
-        display: inline-block;
-        filter: url(#glass-refraction-text);
-    }
-
     /*
     |--------------------------------------------------------------------------
     | Round furniture
@@ -842,8 +833,7 @@
 
     /* Nothing left to refract once the surface is opaque, so the cost goes
        too. */
-    .glass-hero::after,
-    .t-bent {
+    .glass-hero::after {
         filter: none;
         -webkit-backdrop-filter: none;
         backdrop-filter: none;

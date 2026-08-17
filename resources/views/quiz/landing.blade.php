@@ -1,15 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Real ou 3D?')
+@section('title', 'Real ou Digital?')
 
 @section('content')
     <div class="mx-auto grid min-h-dvh w-full max-w-6xl content-center items-center gap-10 px-5 py-14 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
         <header class="flex flex-col gap-6">
-            <p class="t-eyebrow">Desafio de percepção</p>
-
-            {{-- The thesis, stated in the material: one word sits still, the
-                 other is bent by the same lens that runs on the hero cards. --}}
-            <h1 class="t-display">Real<br>ou <span class="t-bent">3D</span>?</h1>
+            <h1 class="t-display">Real<br>ou Digital?</h1>
 
             <p class="t-lead">
                 Participe e concorra a um kit exclusivo da CLO! Acerte 8 vezes e ganhe 50% de desconto no curso de
