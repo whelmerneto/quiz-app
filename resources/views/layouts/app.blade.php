@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="theme-color" content="#05060d">
+    <meta name="theme-color" content="#ffffff">
     <meta name="description" content="Um jogo de percepção: cada imagem foi capturada por uma câmera ou construída em 3D?">
     <title>@yield('title', 'Real ou 3D?')</title>
     {{-- @fonts is a separate directive; @vite does not emit it. Without it the

@@ -96,7 +96,7 @@
                                      review shows the image the player judged,
                                      whole, not a crop of it. --}}
                                 <img
-                                    class="aspect-[4/3] w-full rounded-xl bg-white/4 object-contain"
+                                    class="aspect-[4/3] w-full rounded-xl bg-black/5 object-contain"
                                     src="{{ $answer->image->url() }}"
                                     alt="Imagem {{ $answer->position }} da rodada"
                                     loading="lazy"
