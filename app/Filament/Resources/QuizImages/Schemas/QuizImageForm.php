@@ -36,7 +36,19 @@ final class QuizImageForm
                     // persisted into `path` verbatim: the mimetypes and max rules
                     // only apply to entries that are actually uploaded files.
                     ->preventFilePathTampering()
-                    ->imagePreviewHeight('180')
+                    // No preview inside the field, and it is not a cosmetic
+                    // choice. FilePond builds one by fetching the stored file
+                    // with `fetch()`, and the quiz disk serves from R2's
+                    // pub-*.r2.dev host, which answers with no
+                    // Access-Control-Allow-Origin header. The fetch is blocked,
+                    // FilePond leaves the item in a failed state, and the form
+                    // hangs on submit — the reported "Failed to fetch". The
+                    // thumbnail an operator actually browses by is the one in
+                    // the table, which is a plain <img> and immune to this.
+                    // Once the bucket carries a CORS policy for the panel's
+                    // origin (docs/deploy.md), this can go back to
+                    // `imagePreviewHeight('180')`.
+                    ->previewable(false)
                     ->helperText('PNG, JPG ou JPEG, no máximo 10 MB.'),
                 Radio::make('label')
                     ->label('Classificação')

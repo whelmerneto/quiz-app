@@ -59,6 +59,36 @@ Nothing else on Neon needs configuring. The schema arrives with `migrate`.
 The S3 API endpoint and the public hostname are different hosts. The first is
 where the application writes, the second is where browsers read.
 
+### Image previews in the admin form need a CORS policy
+
+The public site loads images through `<img src>`, which no CORS rule governs. The
+admin upload field is different: FilePond builds its own preview by calling
+`fetch()` on the stored file, and a `pub-*.r2.dev` host answers without an
+`Access-Control-Allow-Origin` header. The blocked fetch leaves the field in a
+failed state and the form stops submitting — the symptom is a
+`TypeError: Failed to fetch` from `file-upload.js` in the console.
+
+Both upload fields therefore set `previewable(false)`, which removes the fetch.
+Operators still browse by the table thumbnail, which is an `<img>`.
+
+To get the in-field preview back, give the bucket a CORS policy under
+**R2 → bucket → Settings → CORS policy**, listing every origin the panel is
+served from:
+
+```json
+[
+  {
+    "AllowedOrigins": ["https://<production host>", "http://localhost:8089"],
+    "AllowedMethods": ["GET", "HEAD"],
+    "AllowedHeaders": ["*"],
+    "MaxAgeSeconds": 3600
+  }
+]
+```
+
+Then swap `previewable(false)` back to `imagePreviewHeight('180')` in
+`QuizImageForm` and `PrizeForm`.
+
 ---
 
 ## 4. Environment variables

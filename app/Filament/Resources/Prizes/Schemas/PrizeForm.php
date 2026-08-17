@@ -48,7 +48,10 @@ final class PrizeForm
                     // are real uploads, so a hand-crafted string would otherwise
                     // land in `image_path` untouched.
                     ->preventFilePathTampering()
-                    ->imagePreviewHeight('180')
+                    // See QuizImageForm: the field preview is a cross-origin
+                    // fetch against a bucket that sends no CORS headers, which
+                    // fails and takes the form's submit with it.
+                    ->previewable(false)
                     ->helperText('Opcional. PNG, JPG ou JPEG, no máximo 10 MB.'),
                 Toggle::make('is_active')
                     ->label('Ativo')
