@@ -12,8 +12,8 @@
             <h1 class="t-display">Real<br>ou <span class="t-bent">3D</span>?</h1>
 
             <p class="t-lead">
-                Uma câmera capturou esta imagem, ou um computador construiu ela inteira? Olhe bem e decida. No fim
-                você descobre quantas acertou e qual prêmio isso vale.
+                Participe e concorra a um kit exclusivo da CLO! Acerte 8 vezes e ganhe 50% de desconto no curso de
+                introdução ao CLO.
             </p>
         </header>
 

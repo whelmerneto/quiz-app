@@ -30,7 +30,7 @@ it('plays a full round from the landing page to the prize screen', function (): 
 
     $page = visit('/');
 
-    $page->assertSee('Uma câmera capturou esta imagem')
+    $page->assertSee('Participe e concorra a um kit exclusivo da CLO')
         ->fill('#name', 'Ana Souza')
         ->fill('#email', 'ana@example.com')
         ->click('Começar a rodada')
