@@ -161,16 +161,18 @@ it('refuses to delete an image that appears in a past attempt', function (): voi
     expect(QuizImage::query()->whereKey($image->id)->exists())->toBeTrue();
 });
 
-it('rejects a jpeg upload', function (): void {
+it('accepts a jpeg upload', function (): void {
+    // .jpg and .jpeg are one format and arrive as the same MIME type, so the
+    // single `image/jpeg` entry covers both extensions.
     Livewire::test(CreateQuizImage::class)
         ->fillForm([
             'path' => UploadedFile::fake()->image('foto.jpg', 640, 480),
             'label' => ImageLabel::Real->value,
         ])
         ->call('create')
-        ->assertHasFormErrors(['path']);
+        ->assertHasNoFormErrors();
 
-    expect(QuizImage::query()->count())->toBe(0);
+    expect(QuizImage::query()->sole()->path)->toEndWith('.jpg');
 });
 
 it('rejects a webp upload', function (): void {

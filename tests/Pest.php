@@ -120,15 +120,21 @@ function seedQuizImages(int $count, ?ImageLabel $label = null): void
 }
 
 /**
- * Starts a round the way a player does: a POST that fills the session.
+ * Starts a round the way a player does: a POST that fills the session. Each
+ * call uses its own address, because an address plays exactly one round — a
+ * test that needs two rounds is two players.
  */
 function startRound(int $poolSize = 10, ?ImageLabel $label = null): QuizAttempt
 {
+    static $player = 0;
+
     seedQuizImages($poolSize, $label);
+
+    $player++;
 
     test()->post(route('quiz.start'), [
         'name' => 'Ana Souza',
-        'email' => 'ana@example.com',
+        'email' => "ana+{$player}@example.com",
     ])->assertRedirect();
 
     return QuizAttempt::query()->latest('id')->firstOrFail();

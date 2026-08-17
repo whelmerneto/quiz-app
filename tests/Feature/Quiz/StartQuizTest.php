@@ -115,6 +115,38 @@ it('rejects an invalid player', function (array $payload, string $field): void {
     'name too long' => [['name' => str_repeat('a', 256), 'email' => 'ana@example.com'], 'name'],
 ]);
 
+it('lets one address play a single round', function (): void {
+    seedQuizImages(12);
+
+    $this->post(route('quiz.start'), ['name' => 'Ana Souza', 'email' => 'ana@example.com'])
+        ->assertRedirect();
+
+    $this->from(route('quiz.landing'))
+        ->post(route('quiz.start'), ['name' => 'Ana Souza', 'email' => 'ana@example.com'])
+        ->assertRedirect(route('quiz.landing'))
+        ->assertSessionHasErrors('email');
+
+    expect(QuizAttempt::query()->count())->toBe(1);
+});
+
+it('reads a second round as the same player whatever the casing', function (): void {
+    // Without the normalisation the rule is trivially defeated: Postgres
+    // compares the column byte for byte, so "Ana@" and "ana@" are two players.
+    seedQuizImages(12);
+
+    $this->post(route('quiz.start'), ['name' => 'Ana Souza', 'email' => ' Ana@Example.com '])
+        ->assertRedirect();
+
+    expect(QuizAttempt::query()->sole()->player_email)->toBe('ana@example.com');
+
+    $this->from(route('quiz.landing'))
+        ->post(route('quiz.start'), ['name' => 'Ana Souza', 'email' => 'ANA@EXAMPLE.COM'])
+        ->assertRedirect(route('quiz.landing'))
+        ->assertSessionHasErrors('email');
+
+    expect(QuizAttempt::query()->count())->toBe(1);
+});
+
 it('answers 422 to an invalid player over json', function (): void {
     seedQuizImages(10);
 

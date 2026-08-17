@@ -713,7 +713,6 @@
         align-items: baseline;
         justify-content: center;
         gap: 0.35rem 0.9rem;
-        border-top: 1px solid rgb(255 255 255 / 0.16);
         padding: 1.1rem 1.25rem;
         text-align: center;
         /* The band lies over an arbitrary photograph, so the stops hold at 0.92

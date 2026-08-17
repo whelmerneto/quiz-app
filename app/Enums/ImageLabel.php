@@ -13,7 +13,7 @@ enum ImageLabel: string
     {
         return match ($this) {
             self::Real => 'Foto real',
-            self::ThreeD => 'Render 3D',
+            self::ThreeD => 'Digital',
         };
     }
 

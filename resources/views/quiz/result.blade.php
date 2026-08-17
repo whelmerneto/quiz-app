@@ -52,7 +52,6 @@
                     <div class="flex flex-col items-start gap-2">
                         <x-glass.badge tone="prize">Prêmio</x-glass.badge>
                         <p class="t-title">{{ $attempt->prize->name }}</p>
-                        <p class="t-note">Combine a entrega pelo e-mail que você deixou.</p>
                     </div>
                 </div>
             @else

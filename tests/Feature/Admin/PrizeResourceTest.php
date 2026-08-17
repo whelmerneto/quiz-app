@@ -80,12 +80,29 @@ it('lets a prize keep its own threshold on edit', function (): void {
         ->and($prize->required_correct)->toBe(7);
 });
 
-it('rejects a non png prize photo', function (): void {
+it('accepts a jpeg prize photo', function (): void {
     Livewire::test(CreatePrize::class)
         ->fillForm([
             'name' => 'Boné',
             'required_correct' => 2,
             'image_path' => UploadedFile::fake()->image('bone.jpg', 400, 400),
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(Prize::query()->sole()->image_path)->toEndWith('.jpg');
+});
+
+it('rejects a prize photo that is neither png nor jpeg', function (): void {
+    // A hand-built RIFF/WEBP container: enough for content sniffing to report
+    // a type outside the two the rule allows.
+    $webp = 'RIFF'.pack('V', 44).'WEBPVP8 '.str_repeat("\0", 36);
+
+    Livewire::test(CreatePrize::class)
+        ->fillForm([
+            'name' => 'Boné',
+            'required_correct' => 2,
+            'image_path' => UploadedFile::fake()->createWithContent('bone.webp', $webp),
         ])
         ->call('create')
         ->assertHasFormErrors(['image_path']);

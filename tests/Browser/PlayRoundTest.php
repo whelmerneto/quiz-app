@@ -36,7 +36,7 @@ it('plays a full round from the landing page to the prize screen', function (): 
         ->click('Começar a rodada')
         ->assertPathBeginsWith('/quiz/')
         ->assertSee('Foto real')
-        ->assertSee('Render 3D');
+        ->assertSee('Digital');
 
     for ($position = 1; $position <= 10; $position++) {
         $page->assertSeeIn('[data-testid=position]', str_pad((string) $position, 2, '0', STR_PAD_LEFT))

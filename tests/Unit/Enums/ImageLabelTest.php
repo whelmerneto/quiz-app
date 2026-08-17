@@ -20,5 +20,5 @@ it('returns null for a value outside the enum', function (): void {
 
 it('renders a Portuguese display label for every case', function (): void {
     expect(ImageLabel::Real->label())->toBe('Foto real')
-        ->and(ImageLabel::ThreeD->label())->toBe('Render 3D');
+        ->and(ImageLabel::ThreeD->label())->toBe('Digital');
 });

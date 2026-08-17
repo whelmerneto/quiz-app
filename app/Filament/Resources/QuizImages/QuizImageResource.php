@@ -27,11 +27,18 @@ final class QuizImageResource extends Resource
     use ResolvesNumericRecordKey;
 
     /**
-     * Postgres SQLSTATE for a foreign key violation. `quiz_attempt_answers`
-     * references `quiz_images` with ON DELETE RESTRICT, so this is the code the
-     * driver raises when the image already appears in a played round.
+     * The Postgres SQLSTATEs that mean "this image is still referenced".
+     * `quiz_attempt_answers` references `quiz_images` with ON DELETE RESTRICT,
+     * and which of the two codes comes back depends on the server version:
+     * Postgres 17 answers the blocked delete with 23503 foreign_key_violation,
+     * Postgres 18 with 23001 restrict_violation. Matching only one of them
+     * turns a blocked delete into an unhandled 500 on whichever server
+     * disagrees, which is exactly what production (Neon, Postgres 18) did while
+     * the container (Postgres 17) stayed green.
+     *
+     * @var list<string>
      */
-    private const string FOREIGN_KEY_VIOLATION = '23503';
+    private const array STILL_REFERENCED = ['23503', '23001'];
 
     protected static ?string $model = QuizImage::class;
 
@@ -88,7 +95,7 @@ final class QuizImageResource extends Resource
                     // statement and leave the connection usable either way.
                     $deleted = (bool) DB::transaction(static fn (): ?bool => $record->delete());
                 } catch (QueryException $exception) {
-                    if ((string) $exception->getCode() !== self::FOREIGN_KEY_VIOLATION) {
+                    if (! in_array((string) $exception->getCode(), self::STILL_REFERENCED, true)) {
                         throw $exception;
                     }
 
