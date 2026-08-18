@@ -31,10 +31,21 @@ final class StartQuizRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            // One round per address. There is no unique index behind this: the
-            // column already carries duplicates from before the rule existed,
-            // and dropping rounds to add one would delete played history.
-            'email' => ['required', 'string', 'email:filter', 'max:255', Rule::unique('quiz_attempts', 'player_email')],
+            // One *finished* round per address. An address whose round is
+            // still open is not a conflict: the controller sends that player
+            // back to the round they left, which is the only way to reach an
+            // abandoned round again once the session cookie is gone.
+            //
+            // There is no unique index behind this either: the column already
+            // carries duplicates from before the rule existed, and dropping
+            // rounds to add one would delete played history.
+            'email' => [
+                'required',
+                'string',
+                'email:filter',
+                'max:255',
+                Rule::unique('quiz_attempts', 'player_email')->whereNotNull('completed_at'),
+            ],
         ];
     }
 

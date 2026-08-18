@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Database\Factories\QuizAttemptFactory;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -52,6 +54,21 @@ final class QuizAttempt extends Model
     public function isComplete(): bool
     {
         return $this->completed_at !== null;
+    }
+
+    /**
+     * The round this address left open, newest first. A player who closes the
+     * tab loses the session cookie but not the round, and starting again with
+     * the same address is how they get back to it.
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function unfinishedFor(Builder $query, string $email): void
+    {
+        $query->where('player_email', $email)
+            ->whereNull('completed_at')
+            ->orderByDesc('id');
     }
 
     /**

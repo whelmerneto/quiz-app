@@ -18,8 +18,22 @@ final class QuizAttemptController extends Controller
 {
     public function store(StartQuizRequest $request, StartQuizAttempt $startQuizAttempt): RedirectResponse
     {
+        $data = StartQuizData::fromRequest($request);
+
+        // A round this address left open is resumed, not replaced. Drawing a
+        // second round would hand the same player a second set of images, and
+        // the request already refuses an address whose round is finished, so
+        // this is the one branch where an existing round is a welcome answer.
+        $unfinished = QuizAttempt::query()->unfinishedFor($data->email)->first();
+
+        if ($unfinished instanceof QuizAttempt) {
+            $request->session()->put(QuizAttempt::SESSION_KEY, $unfinished->uuid);
+
+            return redirect()->route('quiz.play', ['attempt' => $unfinished]);
+        }
+
         try {
-            $attempt = $startQuizAttempt->handle(StartQuizData::fromRequest($request));
+            $attempt = $startQuizAttempt->handle($data);
         } catch (NotEnoughQuizImagesException) {
             // No attempt row exists at this point: the service checks the pool
             // before it opens the transaction.

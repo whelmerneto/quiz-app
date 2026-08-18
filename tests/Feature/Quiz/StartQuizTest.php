@@ -115,11 +115,18 @@ it('rejects an invalid player', function (array $payload, string $field): void {
     'name too long' => [['name' => str_repeat('a', 256), 'email' => 'ana@example.com'], 'name'],
 ]);
 
-it('lets one address play a single round', function (): void {
+it('lets one address play a single finished round', function (): void {
     seedQuizImages(12);
 
     $this->post(route('quiz.start'), ['name' => 'Ana Souza', 'email' => 'ana@example.com'])
         ->assertRedirect();
+
+    $attempt = QuizAttempt::query()->sole();
+    playRound($attempt, 5);
+    // A round is finished when its player reaches the result, not when the last
+    // position is answered: CompleteQuizAttempt runs there and writes
+    // completed_at, which is the flag the rule below reads.
+    $this->get(route('quiz.result', ['attempt' => $attempt]))->assertOk();
 
     $this->from(route('quiz.landing'))
         ->post(route('quiz.start'), ['name' => 'Ana Souza', 'email' => 'ana@example.com'])
@@ -129,15 +136,50 @@ it('lets one address play a single round', function (): void {
     expect(QuizAttempt::query()->count())->toBe(1);
 });
 
-it('reads a second round as the same player whatever the casing', function (): void {
-    // Without the normalisation the rule is trivially defeated: Postgres
-    // compares the column byte for byte, so "Ana@" and "ana@" are two players.
+it('sends an address with an open round back into it', function (): void {
+    seedQuizImages(12);
+
+    $this->post(route('quiz.start'), ['name' => 'Ana Souza', 'email' => 'ana@example.com'])
+        ->assertRedirect();
+
+    $attempt = QuizAttempt::query()->sole();
+
+    // Halfway through, and then the tab is gone: no session, no round.
+    answerPosition($attempt, 1)->assertOk();
+    $this->flushSession();
+
+    $this->post(route('quiz.start'), ['name' => 'Ana Souza', 'email' => 'ana@example.com'])
+        ->assertRedirect(route('quiz.play', ['attempt' => $attempt]))
+        ->assertSessionHasNoErrors()
+        // The session is refilled, which is what makes the round answerable
+        // again rather than merely visible.
+        ->assertSessionHas(QuizAttempt::SESSION_KEY, $attempt->uuid);
+
+    expect(QuizAttempt::query()->count())->toBe(1)
+        ->and($attempt->refresh()->answers()->whereNotNull('answered_at')->count())->toBe(1);
+
+    // And the round it returns to is answerable from position two.
+    answerPosition($attempt, 2)->assertOk();
+});
+
+it('resumes the open round whatever the casing of the address', function (): void {
+    // Without the normalisation both halves break: "Ana@" would start a second
+    // round instead of resuming, and a finished "Ana@" would not block "ana@".
     seedQuizImages(12);
 
     $this->post(route('quiz.start'), ['name' => 'Ana Souza', 'email' => ' Ana@Example.com '])
         ->assertRedirect();
 
-    expect(QuizAttempt::query()->sole()->player_email)->toBe('ana@example.com');
+    $attempt = QuizAttempt::query()->sole();
+
+    expect($attempt->player_email)->toBe('ana@example.com');
+
+    $this->post(route('quiz.start'), ['name' => 'Ana Souza', 'email' => 'ANA@EXAMPLE.COM'])
+        ->assertRedirect(route('quiz.play', ['attempt' => $attempt]))
+        ->assertSessionHasNoErrors();
+
+    playRound($attempt, 5);
+    $this->get(route('quiz.result', ['attempt' => $attempt]))->assertOk();
 
     $this->from(route('quiz.landing'))
         ->post(route('quiz.start'), ['name' => 'Ana Souza', 'email' => 'ANA@EXAMPLE.COM'])
